@@ -13,13 +13,13 @@ class OPTION_PRICING_MODEL(Enum):
     MONTE_CARLO = 'Monte Carlo Simulation'
     BINOMIAL = 'Binomial Model'
 
-@st.cache
+@st.cache_data
 def get_historical_data(ticker):
     """Getting historical data for speified ticker and caching it with streamlit app."""
     return Ticker.get_historical_data(ticker)
 
 # Ignore the Streamlit warning for using st.pyplot()
-st.set_option('deprecation.showPyplotGlobalUse', False)
+# st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # Main title
 st.title('Option pricing')
@@ -42,8 +42,10 @@ if pricing_method == OPTION_PRICING_MODEL.BLACK_SCHOLES.value:
         # Getting data for selected ticker
         data = get_historical_data(ticker)
         st.write(data.tail())
-        Ticker.plot_data(data, ticker, 'Adj Close')
-        st.pyplot()
+        
+        fig = Ticker.plot_data(data, ticker, 'Adj Close')
+        if fig:
+            st.pyplot(fig)
 
         # Formating selected model parameters
         spot_price = Ticker.get_last_price(data, 'Adj Close') 
@@ -74,8 +76,9 @@ elif pricing_method == OPTION_PRICING_MODEL.MONTE_CARLO.value:
         # Getting data for selected ticker
         data = get_historical_data(ticker)
         st.write(data.tail())
-        Ticker.plot_data(data, ticker, 'Adj Close')
-        st.pyplot()
+        fig = Ticker.plot_data(data, ticker, 'Adj Close')
+        if fig:
+            st.pyplot(fig)
 
         # Formating simulation parameters
         spot_price = Ticker.get_last_price(data, 'Adj Close') 
@@ -88,8 +91,9 @@ elif pricing_method == OPTION_PRICING_MODEL.MONTE_CARLO.value:
         MC.simulate_prices()
 
         # Visualizing Monte Carlo Simulation
-        MC.plot_simulation_results(num_of_movements)
-        st.pyplot()
+        fig = MC.plot_simulation_results(num_of_movements)
+        if fig:            
+            st.pyplot(fig)
 
         # Calculating call/put option price
         call_option_price = MC.calculate_option_price('Call Option')
@@ -112,8 +116,9 @@ elif pricing_method == OPTION_PRICING_MODEL.BINOMIAL.value:
          # Getting data for selected ticker
         data = get_historical_data(ticker)
         st.write(data.tail())
-        Ticker.plot_data(data, ticker, 'Adj Close')
-        st.pyplot()
+        fig = Ticker.plot_data(data, ticker, 'Adj Close')
+        if fig:
+            st.pyplot(fig)
 
         # Formating simulation parameters
         spot_price = Ticker.get_last_price(data, 'Adj Close') 
