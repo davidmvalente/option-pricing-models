@@ -81,12 +81,14 @@ class MonteCarloPricing(OptionPricingModel):
 
     def plot_simulation_results(self, num_of_movements):
         """Plots specified number of simulated price movements."""
-        plt.figure(figsize=(12,8))
-        plt.plot(self.simulation_results_S[:,0:num_of_movements])
-        plt.axhline(self.K, c='k', xmin=0, xmax=self.num_of_steps, label='Strike Price')
-        plt.xlim([0, self.num_of_steps])
-        plt.ylabel('Simulated price movements')
-        plt.xlabel('Days in future')
-        plt.title(f'First {num_of_movements}/{self.N} Random Price Movements')
-        plt.legend(loc='best')
-        plt.show()
+        
+        fig, ax = plt.subplots(figsize=(12, 8))
+        ax.plot(self.simulation_results_S[:, 0:num_of_movements])
+        ax.axhline(self.K, c='k', xmin=0, xmax=self.num_of_steps, label='Strike Price')
+        ax.set_xlim([0, self.num_of_steps])
+        ax.set_ylabel('Simulated price movements')
+        ax.set_xlabel('Days in future')
+        ax.set_title(f'First {num_of_movements}/{self.N} Random Price Movements')
+        ax.legend(loc='best')
+        
+        return fig

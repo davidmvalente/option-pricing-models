@@ -1,11 +1,11 @@
 # Standard library imports
 import datetime
+import traceback
 
 # Third party imports
 import requests_cache
 import matplotlib.pyplot as plt
-from pandas_datareader import data as wb
-
+import yfinance as yf
 
 class Ticker:
     """Class for fetcing data from yahoo finance."""
@@ -31,14 +31,17 @@ class Ticker:
             session.headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0', 'Accept': 'application/json;charset=utf-8'}  # noqa
             
             if start_date is not None and end_date is not None:
-                data = wb.DataReader(ticker, data_source='yahoo', start=start_date, end=end_date, session=session)
+                data = yf.download(ticker,  start=start_date, end=end_date, session=session)
             else:
-                data = wb.DataReader(ticker, data_source='yahoo', session=session)   #['Adj Close']
+                data = yf.download(ticker, session=session)   #['Adj Close']
             if data is None:
+                print("No data returned for ticker: ", ticker)
                 return None
             return data
         except Exception as e:
+            print("get_historical_data: An error occurred for ticker: ", ticker)
             print(e)
+            print(traceback.format_exc())
             return None
 
     @staticmethod
@@ -81,12 +84,13 @@ class Ticker:
         try:
             if data is None:
                 return
-            data[column_name].plot()
-            plt.ylabel(f'{column_name}')
-            plt.xlabel('Date')
-            plt.title(f'Historical data for {ticker} - {column_name}')
-            plt.legend(loc='best')
-            plt.show()
+            fig, ax = plt.subplots(figsize=(12, 8))
+            data[column_name].plot(ax=ax)
+            ax.set_ylabel(f'{column_name}')
+            ax.set_xlabel('Date')
+            ax.set_title(f'Historical data for {ticker} - {column_name}')
+            ax.legend(loc='best')
+            return fig
         except Exception as e:
             print(e)
-            return
+            return None
