@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import streamlit as st
 
 # Local package imports
-from option_pricing import BlackScholesModel, MonteCarloPricing, BinomialTreeModel, Ticker
+from option_pricing import BlackScholesModel, MonteCarloPricing, RandomProcessType, BinomialTreeModel, Ticker
 
 class OPTION_PRICING_MODEL(Enum):
     BLACK_SCHOLES = 'Black Scholes Model'
@@ -64,13 +64,14 @@ if pricing_method == OPTION_PRICING_MODEL.BLACK_SCHOLES.value:
 
 elif pricing_method == OPTION_PRICING_MODEL.MONTE_CARLO.value:
     # Parameters for Monte Carlo simulation
-    ticker = st.text_input('Ticker symbol', 'AAPL')
-    strike_price = st.number_input('Strike price', 300)
-    risk_free_rate = st.slider('Risk-free rate (%)', 0, 100, 10)
-    sigma = st.slider('Sigma (%)', 0, 100, 20)
-    exercise_date = st.date_input('Exercise date', min_value=datetime.today() + timedelta(days=1), value=datetime.today() + timedelta(days=365))
+    ticker = st.text_input('Ticker symbol', 'SPY')
+    strike_price = st.number_input('Strike price', 530)
+    risk_free_rate = st.number_input('Risk-free rate (%)', 0, 100, 5)
+    sigma = st.number_input('Sigma (%)', 0, 100, 19)
+    exercise_date = st.date_input('Exercise date', min_value=datetime.today() + timedelta(days=1), value=datetime.today() + timedelta(days=140))
     number_of_simulations = st.slider('Number of simulations', 100, 100000, 10000)
     num_of_movements = st.slider('Number of price movement simulations to be visualized ', 0, int(number_of_simulations/10), 100)
+    process_type = st.selectbox("Random process type", options=RandomProcessType)
 
     if st.button(f'Calculate option price for {ticker}'):
         # Getting data for selected ticker
@@ -87,7 +88,10 @@ elif pricing_method == OPTION_PRICING_MODEL.MONTE_CARLO.value:
         days_to_maturity = (exercise_date - datetime.now().date()).days
 
         # ESimulating stock movements
-        MC = MonteCarloPricing(spot_price, strike_price, days_to_maturity, risk_free_rate, sigma, number_of_simulations)
+        MC = MonteCarloPricing(spot_price, strike_price, days_to_maturity, 
+            risk_free_rate, sigma, number_of_simulations,
+            process_type
+        )
         MC.simulate_prices()
 
         # Visualizing Monte Carlo Simulation
